@@ -51,7 +51,7 @@ const signUpuser = async (req, res, next) => {
     email,
     password,
     image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg",
+      "https://images.pexels.com/photos/3584443/pexels-photo-3584443.jpeg?cs=srgb&dl=golden-gate-bridge-san-francisco-3584443.jpg&fm=jpg",
     places: []
   });
 
@@ -60,7 +60,7 @@ const signUpuser = async (req, res, next) => {
   } catch (err) {
     return next(new HttpsError("cannot create the User", 500));
   }
-  res.status(201).json({ user });
+  res.status(201).json({ user: user.toObject({ getters: true }) });
 };
 
 const loginUser = async (req, res, next) => {
@@ -70,7 +70,6 @@ const loginUser = async (req, res, next) => {
     return next(new HttpsError("Email or password does not match", 422));
   }
   const { email, password } = req.body;
-
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });
@@ -82,12 +81,8 @@ const loginUser = async (req, res, next) => {
   if (!existingUser || existingUser.password !== password) {
     return next(new HttpsError("email does not exists or password match", 404));
   }
-  const user = {
-    email,
-    password
-  };
 
-  res.status(201).json({ user });
+  res.status(201).json({ user: existingUser.toObject({ getters: true }) });
 };
 
 exports.getAllUsers = getAllUsers;

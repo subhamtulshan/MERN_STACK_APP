@@ -1,40 +1,40 @@
-import React from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import PlaceList from "../Component/PlaceList";
-
-const DUMMY_PLACES = [
-  {
-    id: "p1",
-    title: "Empire State Building",
-    description: "One of the most famous sky scrapers in the world!",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg",
-    address: "20 W 34th St, New York, NY 10001",
-    location: {
-      lat: 40.7484405,
-      lng: -73.9878584
-    },
-    creator: "u1"
-  },
-  {
-    id: "p2",
-    title: "Empire State Building",
-    description: "One of the most famous sky scrapers in the world!",
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg",
-    address: "20 W 34th St, New York, NY 10001",
-    location: {
-      lat: 40.7484405,
-      lng: -73.9878584
-    },
-    creator: "u2"
-  }
-];
+import { useHttpsClient } from "../../Hooks/Https-hooks";
+import ErrorModal from "../../Shared/Components/UIElements/ErrorModal";
+import LoadingSpinner from "../../Shared/Components/UIElements/LoadingSpinner";
 
 const UserPlaces = () => {
+  const [isLoading, isError, GetPlace, clearError] = useHttpsClient();
   const userId = useParams().userId;
-  const loadedPlace = DUMMY_PLACES.filter(place => place.creator === userId);
-  return <PlaceList item={loadedPlace} />;
+  let [loadedPlace, setLoadedPlace] = useState();
+
+  useEffect(() => {
+    const getallplacebyId = async () => {
+      try {
+        const responseData = await GetPlace(
+          "http://localhost:5000/api/places/user/" + userId
+        );
+        setLoadedPlace(responseData.place);
+      } catch (err) {}
+    };
+    getallplacebyId();
+  }, [GetPlace, userId]);
+
+  const deletePlace = id => {
+    setLoadedPlace(prevstate => {
+      prevstate.filter(place => place.id !== id);
+    });
+  };
+  // const loadedPlace = DUMMY_PLACES.filter(place => place.creator === userId);
+  return (
+    <React.Fragment>
+      <ErrorModal error={isError} onClear={clearError}></ErrorModal>
+      <PlaceList item={loadedPlace} deletePlace={deletePlace} />
+      {isLoading ? <LoadingSpinner asOverlay></LoadingSpinner> : null}
+    </React.Fragment>
+  );
 };
 
 export default UserPlaces;

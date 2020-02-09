@@ -8,6 +8,17 @@ const userRoute = require("./Routes/Users-routes");
 
 const app = express();
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*"),
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin,X-Requested-With,Content-Type,Accept,Authorization"
+    ),
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE");
+
+  next();
+});
+
 app.use("/api/places", placeRoute);
 
 app.use("/api/users", userRoute);
@@ -28,7 +39,8 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    "mongodb+srv://subham:CgbAbBEjwyOwxatL@cluster0-jmkjg.mongodb.net/products_test?retryWrites=true&w=majority"
+    "mongodb+srv://subham:vpHUBpp65kKVBQNO@mernstack-a7nkp.mongodb.net/MERN?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true, autoIndex: true }
   )
   .then(app.listen("5000"))
   .catch(error => {

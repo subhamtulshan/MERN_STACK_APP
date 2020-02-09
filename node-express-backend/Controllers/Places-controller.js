@@ -29,7 +29,7 @@ const getPlaceByUserId = async (req, res, next) => {
   const userId = req.params.uid;
   let place;
   try {
-    place = await Place.find({ creator: "u2" });
+    place = await Place.find({ creator: userId });
   } catch (err) {
     return next(new HttpsError("something went wrong", 500));
   }
@@ -50,15 +50,15 @@ const createPlace = async (req, res, next) => {
     console.log(err);
     return next(new HttpsError("Inputs are not valid", 422));
   }
-  const { title, description, coordinate, address, creator } = req.body;
+  const { title, description, address, creator } = req.body;
   const createdPlace = new Place({
     title: title,
     description: description,
-    location: coordinate,
+    location: { lat: 22, lng: 23 },
     address: address,
     creator: creator,
     image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/NYC_Empire_State_Building.jpg/640px-NYC_Empire_State_Building.jpg"
+      "https://images.pexels.com/photos/1738976/pexels-photo-1738976.jpeg?cs=srgb&dl=woman-sitting-on-dock-1738976.jpg&fm=jpg"
   });
 
   let user;

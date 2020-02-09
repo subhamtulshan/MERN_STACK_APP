@@ -8,6 +8,7 @@ const userController = require("../Controllers/User-controllers");
 
 route.use(bodyparser.json());
 
+
 route.get("/", userController.getAllUsers);
 
 route.post(
