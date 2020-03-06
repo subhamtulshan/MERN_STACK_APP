@@ -14,6 +14,7 @@ import {
 import Card from "../../Shared/Components/UIElements/Card";
 import { AuthContext } from "../../Context/Auth_Context";
 import { useHttpsClient } from "../../Hooks/Https-hooks";
+import ImageUpload from "../../Shared/Components/FormElements/imageUpload";
 
 const Auth = props => {
   const [LoginMode, setLoginMode] = useState(true);
@@ -44,6 +45,10 @@ const Auth = props => {
           Name: {
             value: "",
             isValid: false
+          },
+          image: {
+            value: null,
+            isValid: false
           }
         },
         false
@@ -52,7 +57,8 @@ const Auth = props => {
       setFormData(
         {
           ...inputState.inputs,
-          Name: undefined
+          Name: undefined,
+          image: undefined
         },
         inputState.inputs.Email.isValid && inputState.inputs.Password.isValid
       );
@@ -103,16 +109,18 @@ const Auth = props => {
       } catch (err) {}
     } else {
       try {
+        const formdata = new FormData();
+        formdata.append("email", inputState.inputs.Email.value);
+        formdata.append("password", inputState.inputs.Password.value);
+        formdata.append("name", inputState.inputs.Name.value);
+        formdata.append("image", inputState.inputs.image.value);
         const reponseData = await submitRequest(
           "http://localhost:5000/api/users/signup",
           "POST",
-          { "Content-Type": "application/json" },
-          JSON.stringify({
-            name: inputState.inputs.Name.value,
-            email: inputState.inputs.Email.value,
-            password: inputState.inputs.Password.value
-          })
+          {},
+          formdata
         );
+        console.log("response aa gy");
         auth.login(reponseData.user.id);
       } catch (err) {}
     }
@@ -160,6 +168,14 @@ const Auth = props => {
               errortext="please enter Name"
               onInput={inputChangeHandler}
             ></Input>
+          )}
+          {!LoginMode && (
+            <ImageUpload
+              center
+              id="image"
+              onInput={inputChangeHandler}
+              errortext="please provide image"
+            ></ImageUpload>
           )}
           <Input
             id="Email"

@@ -1,7 +1,8 @@
 const express = require("express");
 const bodyparser = require("body-parser");
 const mongoose = require("mongoose");
-
+const path = require("path");
+const fs = require("fs");
 const placeRoute = require("./Routes/Places-routes");
 const HttpsError = require("./Models/https-error");
 const userRoute = require("./Routes/Users-routes");
@@ -19,6 +20,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
+
 app.use("/api/places", placeRoute);
 
 app.use("/api/users", userRoute);
@@ -29,6 +32,11 @@ app.use((req, res, next) => {
 });
 
 app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, () => {
+      console.log("error with image deletion");
+    });
+  }
   if (res.headerSent) {
     return next(error);
   }
@@ -39,8 +47,13 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    "mongodb+srv://subham:vpHUBpp65kKVBQNO@mernstack-a7nkp.mongodb.net/MERN?retryWrites=true&w=majority",
-    { useNewUrlParser: true, useUnifiedTopology: true, autoIndex: true }
+    "mongodb+srv://subham:BqHth4LVlWryiJ5N@cluster0-a7nkp.mongodb.net/MERN?retryWrites=true&w=majority",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      autoIndex: true,
+      useCreateIndex: true
+    }
   )
   .then(app.listen("5000"))
   .catch(error => {

@@ -26,10 +26,11 @@ const getAllUsers = async (req, res, next) => {
   } catch (err) {
     return next(new HttpsError("something went wrong", 500));
   }
-  res.json({ User: Users.map(u => u.toObject()) });
+  res.json({ User: Users.map(u => u.toObject({ getters: true })) });
 };
 
 const signUpuser = async (req, res, next) => {
+  console.log("signup pe aa gya ");
   const err = validationResult(req);
   if (!err.isEmpty()) {
     return next(new HttpsError("Inputs are not valid", 422));
@@ -50,8 +51,7 @@ const signUpuser = async (req, res, next) => {
     name,
     email,
     password,
-    image:
-      "https://images.pexels.com/photos/3584443/pexels-photo-3584443.jpeg?cs=srgb&dl=golden-gate-bridge-san-francisco-3584443.jpg&fm=jpg",
+    image: req.file.path,
     places: []
   });
 
@@ -60,6 +60,7 @@ const signUpuser = async (req, res, next) => {
   } catch (err) {
     return next(new HttpsError("cannot create the User", 500));
   }
+
   res.status(201).json({ user: user.toObject({ getters: true }) });
 };
 

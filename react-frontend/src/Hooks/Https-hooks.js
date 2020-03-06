@@ -19,7 +19,9 @@ export const useHttpsClient = () => {
           headers: headers,
           body: body
         });
+
         responseData = await response.json();
+
         if (!response.ok) {
           throw new Error(responseData.message);
         }

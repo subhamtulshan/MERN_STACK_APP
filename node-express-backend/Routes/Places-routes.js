@@ -5,6 +5,7 @@ const { check } = require("express-validator");
 const route = express.Router();
 
 const PlaceController = require("../Controllers/Places-controller");
+const FileUpload = require("../middleware/fileUpload");
 
 route.use(bodyparser.json());
 
@@ -14,6 +15,7 @@ route.get("/user/:uid", PlaceController.getPlaceByUserId);
 
 route.post(
   "/",
+  FileUpload.single("image"),
   [
     check("title")
       .not()
@@ -32,7 +34,7 @@ route.patch(
     check("title")
       .not()
       .isEmpty(),
-    check("description").isLength({ min: 5 }),
+    check("description").isLength({ min: 5 })
   ],
   PlaceController.updatePlace
 );

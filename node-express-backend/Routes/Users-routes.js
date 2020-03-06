@@ -5,22 +5,23 @@ const { check } = require("express-validator");
 const route = express.Router();
 
 const userController = require("../Controllers/User-controllers");
+const FileUpload = require("../middleware/fileUpload");
 
 route.use(bodyparser.json());
-
 
 route.get("/", userController.getAllUsers);
 
 route.post(
   "/signup",
+  FileUpload.single("image"),
   [
-    check("name")
+    (check("name")
       .not()
       .isEmpty(),
     check("email")
       .normalizeEmail()
       .isEmail(),
-    check("password").isLength({ min: 5 })
+    check("password").isLength({ min: 5 }))
   ],
   userController.signUpuser
 );

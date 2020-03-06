@@ -1,10 +1,11 @@
 const uuid = require("uuid");
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
-
+const fs = require("fs");
 const HttpsError = require("../Models/https-error");
 const Place = require("../Models/Place");
 const User = require("../Models/User");
+const FileUpload = require("../middleware/fileUpload");
 
 const getPlaceByPlaceId = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -57,8 +58,7 @@ const createPlace = async (req, res, next) => {
     location: { lat: 22, lng: 23 },
     address: address,
     creator: creator,
-    image:
-      "https://images.pexels.com/photos/1738976/pexels-photo-1738976.jpeg?cs=srgb&dl=woman-sitting-on-dock-1738976.jpg&fm=jpg"
+    image: req.file.path
   });
 
   let user;
@@ -129,12 +129,15 @@ const updatePlace = async (req, res, next) => {
 const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
   let place;
+
   try {
     place = await Place.findById(placeId).populate("creator");
   } catch (err) {
     return next(new HttpsError("something went wrong", 5000));
   }
-
+  // here we have used session as we want that both the operation should complete
+  //together else they should not 
+  const imagePath = place.image;
   try {
     const sess = await mongoose.startSession();
     await sess.startTransaction();
@@ -145,6 +148,9 @@ const deletePlace = async (req, res, next) => {
   } catch {
     return next(new HttpsError("something went wrong", 500));
   }
+  fs.unlink(imagePath, err => {
+    console.log(err);
+  });
   res.status(200).json({ message: "place deleted" });
 };
 

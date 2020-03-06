@@ -15,3 +15,6 @@ const placeSchema = new Schema({
 });
 
 module.exports = mongoose.model("Place", placeSchema);
+
+//*Mongoose lets you start using your models immediately, without waiting for mongoose to establish a connection to MongoDB.
+//Hence we need to either create the 

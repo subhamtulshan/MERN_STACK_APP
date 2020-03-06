@@ -12,6 +12,7 @@ import { useHttpsClient } from "../../Hooks/Https-hooks";
 import { AuthContext } from "../../Context/Auth_Context";
 import ErrorModal from "../../Shared/Components/UIElements/ErrorModal";
 import LoadingSpinner from "../../Shared/Components/UIElements/LoadingSpinner";
+import ImageUpload from "../../Shared/Components/FormElements/imageUpload";
 
 const Places = () => {
   const [isLoading, isError, createPlace, clearError] = useHttpsClient();
@@ -31,6 +32,10 @@ const Places = () => {
       address: {
         value: "",
         isValid: false
+      },
+      image: {
+        value: "",
+        isValid: false
       }
     },
     false
@@ -38,16 +43,18 @@ const Places = () => {
   const submitHandler = async event => {
     event.preventDefault();
     try {
+      const formdata = new FormData();
+      formdata.append("title", inputState.inputs.title.value);
+      formdata.append("address", inputState.inputs.address.value);
+      formdata.append("description", inputState.inputs.description.value);
+      formdata.append("creator", auth.userId);
+      formdata.append("image", inputState.inputs.image.value);
+
       const responseData = await createPlace(
         "http://localhost:5000/api/places/",
         "POST",
-        { "Content-Type": "application/json" },
-        JSON.stringify({
-          title: inputState.inputs.title.value,
-          address: inputState.inputs.address.value,
-          description: inputState.inputs.description.value,
-          creator: auth.userId
-        })
+        {},
+        formdata
       );
       history.push("/");
     } catch (err) {}
@@ -83,6 +90,12 @@ const Places = () => {
           errortext="please enter valid address"
           onInput={inputChangeHandler}
         ></Input>
+        <ImageUpload
+          center
+          id="image"
+          onInput={inputChangeHandler}
+          errortext="please provide image"
+        ></ImageUpload>
         <Button type="submit" disabled={!inputState.isFormValid}>
           ADD PLACE
         </Button>
