@@ -49,11 +49,11 @@ const Places = () => {
       formdata.append("description", inputState.inputs.description.value);
       formdata.append("creator", auth.userId);
       formdata.append("image", inputState.inputs.image.value);
-
+      console.log(auth.token);
       const responseData = await createPlace(
         "http://localhost:5000/api/places/",
         "POST",
-        {},
+        { Authorization: "bearer " + auth.token },
         formdata
       );
       history.push("/");

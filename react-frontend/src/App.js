@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -13,20 +13,12 @@ import UserPlaces from "./Places/Pages/UserPlaces";
 import UpdatePlace from "./Places/Pages/UpdatePlaces";
 import AuthUser from "./Users/Pages/Auth";
 import { AuthContext } from "./Context/Auth_Context";
+import { AuthHooks } from "./Hooks/Auth-hooks";
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userId, setUserId] = useState(false);
-  const login = userId => {
-    setIsLoggedIn(true);
-    setUserId(userId);
-  };
-  const logout = () => {
-    setIsLoggedIn(false);
-    setUserId(null);
-  };
+  const [login, logout, token, userId] = AuthHooks();
   let routes;
-  if (isLoggedIn) {
+  if (token) {
     routes = (
       <Switch>
         <Route path="/" exact>
@@ -63,7 +55,8 @@ const App = () => {
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn: isLoggedIn,
+        isLoggedIn: !!token,
+        token: token,
         login: login,
         logout: logout,
         userId: userId

@@ -48,7 +48,6 @@ const getPlaceByUserId = async (req, res, next) => {
 const createPlace = async (req, res, next) => {
   const err = validationResult(req);
   if (!err.isEmpty()) {
-    console.log(err);
     return next(new HttpsError("Inputs are not valid", 422));
   }
   const { title, description, address, creator } = req.body;
@@ -133,10 +132,15 @@ const deletePlace = async (req, res, next) => {
   try {
     place = await Place.findById(placeId).populate("creator");
   } catch (err) {
-    return next(new HttpsError("something went wrong", 5000));
+    return next(new HttpsError("something went wrong", 500));
+  }
+  console.log(place.creator);
+  console.log(req.userdata.userId);
+  if (place.creator._id.toString() !== req.userdata.userId) {
+    return next(new HttpsError("something went wrong not your place", 401));
   }
   // here we have used session as we want that both the operation should complete
-  //together else they should not 
+  //together else they should not
   const imagePath = place.image;
   try {
     const sess = await mongoose.startSession();

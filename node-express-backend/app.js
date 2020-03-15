@@ -47,7 +47,7 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    "mongodb+srv://subham:BqHth4LVlWryiJ5N@cluster0-a7nkp.mongodb.net/MERN?retryWrites=true&w=majority",
+    "mongodb+srv://Subham:T8dtAyaoq94C7O9p@cluster0-a7nkp.mongodb.net/MERN?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,

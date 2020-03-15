@@ -12,7 +12,6 @@ export const useHttpsClient = () => {
   const submitRequest = useCallback(
     async (URL, method = "GET", headers = {}, body = null) => {
       try {
-        console.log('responseData');
         setIsLoading(true);
         const response = await fetch(URL, {
           method: method,

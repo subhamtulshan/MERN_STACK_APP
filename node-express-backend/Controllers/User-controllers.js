@@ -1,9 +1,11 @@
 const uuid = require("uuid");
 const { validationResult } = require("express-validator");
+const bycryptjs = require("bcryptjs");
+const jsonwebtoken = require("jsonwebtoken");
 
 const HttpsError = require("../Models/https-error");
 const User = require("../Models/User");
-
+const SECRET_KEY = "super_secret_key_share_and_die";
 const getUserbyId = (req, res, next) => {
   const userId = req.params.uid;
   const user = USERS.find(u => (u.id = userId));
@@ -30,7 +32,6 @@ const getAllUsers = async (req, res, next) => {
 };
 
 const signUpuser = async (req, res, next) => {
-  console.log("signup pe aa gya ");
   const err = validationResult(req);
   if (!err.isEmpty()) {
     return next(new HttpsError("Inputs are not valid", 422));
@@ -47,10 +48,18 @@ const signUpuser = async (req, res, next) => {
   if (existingUser) {
     return next(new HttpsError("email already exists", 404));
   }
+
+  let hashPassword;
+
+  try {
+    hashPassword = await bycryptjs.hash(password, 12);
+  } catch (err) {
+    return next(new HttpsError("something went wrong", 500));
+  }
   const user = new User({
     name,
     email,
-    password,
+    password: hashPassword,
     image: req.file.path,
     places: []
   });
@@ -61,7 +70,19 @@ const signUpuser = async (req, res, next) => {
     return next(new HttpsError("cannot create the User", 500));
   }
 
-  res.status(201).json({ user: user.toObject({ getters: true }) });
+  let token;
+
+  try {
+    token = jsonwebtoken.sign(
+      { userid: user.id, email: user.email },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch (err) {
+    return next(new HttpsError("cannot create the User", 500));
+  }
+
+  res.status(201).json({ userId: user.id, email: user.email, token: token });
 };
 
 const loginUser = async (req, res, next) => {
@@ -79,11 +100,34 @@ const loginUser = async (req, res, next) => {
   }
 
   // const existingUser = USERS.find(u => u.email === email);
-  if (!existingUser || existingUser.password !== password) {
+  if (!existingUser) {
     return next(new HttpsError("email does not exists or password match", 404));
   }
 
-  res.status(201).json({ user: existingUser.toObject({ getters: true }) });
+  let isvalidPassword = false;
+  try {
+    isvalidPassword = await bycryptjs.compare(password, existingUser.password);
+  } catch {
+    return next(new HttpsError("something went wrong", 500));
+  }
+  if (!isvalidPassword) {
+    return next(new HttpsError("email does not exists or password match", 404));
+  }
+  let token;
+
+  try {
+    token = jsonwebtoken.sign(
+      { userid: existingUser.id, email: existingUser.email },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch {
+    return next(new HttpsError("cannot create the User", 500));
+  }
+
+  res
+    .status(201)
+    .json({ userId: existingUser.id, email: existingUser.email, token: token });
 };
 
 exports.getAllUsers = getAllUsers;

@@ -2,6 +2,7 @@ const express = require("express");
 const bodyparser = require("body-parser");
 const { check } = require("express-validator");
 
+const Auth = require("../middleware/check-auth");
 const route = express.Router();
 
 const PlaceController = require("../Controllers/Places-controller");
@@ -12,6 +13,8 @@ route.use(bodyparser.json());
 route.get("/:pid", PlaceController.getPlaceByPlaceId);
 
 route.get("/user/:uid", PlaceController.getPlaceByUserId);
+
+route.use(Auth);
 
 route.post(
   "/",

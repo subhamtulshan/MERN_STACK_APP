@@ -105,7 +105,7 @@ const Auth = props => {
             password: inputState.inputs.Password.value
           })
         );
-        auth.login(responseData.user.id);
+        auth.login(responseData.userId, responseData.token);
       } catch (err) {}
     } else {
       try {
@@ -120,8 +120,7 @@ const Auth = props => {
           {},
           formdata
         );
-        console.log("response aa gy");
-        auth.login(reponseData.user.id);
+        auth.login(reponseData.userId, reponseData.token);
       } catch (err) {}
     }
   };
